@@ -19,9 +19,11 @@ class TcpSocket:
     sendBuffer    = []
     sendWindow    = {}
     
-    windowSize    = 5
-    packetSize    = 1500
-    attempt       = 0
+    cwnd     = 0.0
+    mss      = 1500
+    ithresh  = 96000 #Bytes
+    ssthresh = ithresh
+    attempt  = 0
     
     mySequenceNumber  = 0
     rmtSequenceNumber = None
@@ -42,10 +44,10 @@ class TcpSocket:
     ####################################################################
     # __init__
     ####################################################################
-    def __init__(self, os, s, windowSize):
-        self.os           = os
-        self.scheduler    = s
-        self.windowSize   = windowSize
+    def __init__(self, os, s, cwnd):
+        self.os        = os
+        self.scheduler = s
+        self.cwnd   = float (cwnd)
     
     ####################################################################
     # Set Timer
@@ -278,12 +280,12 @@ class TcpSocket:
     
     ####################################################################
     # This function will take a piece of data and break it into
-    # segments.  Each segment will be <= packetSize.  This function
+    # segments.  Each segment will be <= mss.  This function
     # will return these pieces as initialized packets in a list.
     ####################################################################
     def segmentizeData(self, data):
         segments   = []
-        dataPieces = stringSpliter(data, self.packetSize)
+        dataPieces = stringSpliter(data, self.mss)
         
         for piece in dataPieces:
             #Build Packet for Each segment
@@ -358,10 +360,17 @@ class TcpSocket:
     ####################################################################
     def packetTimeoutEvent(self, t, packet):
         if packet.sqNum in self.sendWindow:
+            #A timeout occured
             self.scheduler.log.write(str(t) + " PacketTimeout_on " + str(self.os.osNode.ip) + " " + str(packet.sqNum) + "\n")
             self.scheduler.addNow(packet, self.os.osNode.incomePacketEvent)
             self.setTimeOut(packet, self.packetTimeoutEvent)
+
+            #TCP Recovery
+            self.ssthresh = max(int(self.cwnd/2), self.mss)
+            self.cwnd = self.mss
+
         elif len(self.sendWindow) > 0:
+            #No Timeout Yet
             self.setTimeOut(self.sendWindow[self.getMinKeyOf_SendWindow()],
                             self.packetTimeoutEvent)
         
@@ -373,7 +382,7 @@ class TcpSocket:
     # the packets across the network, and add them to the sendWindow.
     ####################################################################
     def sendDataHandler(self, t, junk):
-        while len(self.sendWindow) < self.windowSize and len(self.sendBuffer) > 0:
+        while len(self.sendWindow) < int(self.cwnd) and len(self.sendBuffer) > 0:
             self.scheduler.addNow(self.sendBuffer[0], self.os.osNode.incomePacketEvent)
             
             if not self.timer:
@@ -498,12 +507,25 @@ class TcpSocket:
         return
     
     ####################################################################
+    # updateCwnd
+    # This function will update the cwnd based on the ideas of TCP
+    # slowStart and congrestionAviodance. 
+    ####################################################################
+    def updateCwnd(self, bytesRecieved):
+        if (self.cwnd < self.ssthresh):
+            self.cwnd += bytesRecieved
+        else:
+            self.cwnd += self.mss * bytesRecieved / self.cwnd
+
+    ####################################################################
     # HandleDataEvent
     # This funtion will add data to the data buffer
     ####################################################################
     def handleDataEvent(self, t, packet):
         if not ((packet.sqNum, packet) in self.recieveBuffer) and not (packet.sqNum < self.rmtSequenceNumber):
             heappush(self.recieveBuffer, (packet.sqNum, packet))
+            self.updateCwnd(packet.length)
+
         self.passUpInOrderData(t)
         self.sendAck(t)
     
