@@ -72,10 +72,12 @@ class Node:
             
             packet.queueD = t
             self.linkQueue.append(packet)
+            self.scheduler.log.write(str(t) + " PacketEnque " + str(self.ip) + 
+                " " + str(len(self.linkQueue)) + " / " + str(self.maxQueueLength) + "\n")
+
         else:
             self.scheduler.log.write(str(t) + " PacketDropped " +
                   str(packet.sqNum) + " " + str(self.ip) + "\n")
-            #print "packetDropped on ", self.ip, " sq: ", packet.sqNum
 
     
 ####################################################################
@@ -116,8 +118,12 @@ class Link:
     def propigationDelayhandler(self, t, packet):
         if not(packet is self.srcNode.linkQueue[0]):
             print "HOOOLLLLY CRAP!! ~PropDelayHandler: Not right!"
+
         self.srcNode.linkQueue.pop(0)
+        self.scheduler.log.write(str(t) + " PacketDeque " + str(self.srcNode.ip) + 
+            " " + str(len(self.srcNode.linkQueue)) + " / " + str(self.srcNode.maxQueueLength) + "\n")
         
+
         if len(self.srcNode.linkQueue) > 0:
             self.scheduler.add(t+.0000001,
                                self.srcNode.linkQueue[0],

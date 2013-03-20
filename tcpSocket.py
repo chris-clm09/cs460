@@ -334,7 +334,9 @@ class TcpSocket:
             
             for key in self.sendWindow.keys():
                 if key < ack:
+                    self.updateCwnd(self.sendWindow[key].length)
                     del self.sendWindow[key]
+
             
             self.sendDataHandler(t, None)
         
@@ -364,11 +366,10 @@ class TcpSocket:
             self.scheduler.addNow(packet, self.os.osNode.incomePacketEvent)
             self.setTimeOut(packet, self.packetTimeoutEvent)
 
-            print "PacketTimeOut", self.os.osNode.ip
-
             #TCP Recovery
             self.ssthresh = max(self.cwnd/2, self.mss)
             self.cwnd     = self.mss
+            self.scheduler.log.write(str(t) + " cwnd timeout " + str(self.os.osNode.ip) + " " + str(self.cwnd) + " " + str(self.cwnd / self.mss) + "\n")            
 
         elif len(self.sendWindow) > 0:
             #No Timeout Yet
@@ -383,7 +384,7 @@ class TcpSocket:
     # the packets across the network, and add them to the sendWindow.
     ####################################################################
     def sendDataHandler(self, t, junk):
-        print self.os.osNode.ip, ":willSend: ", int(self.cwnd/self.mss) - len(self.sendWindow), " Queue is: ", len(self.os.osNode.linkQueue), "/", self.os.osNode.maxQueueLength
+        #print self.os.osNode.ip, ":willSend: ", int(self.cwnd/self.mss) - len(self.sendWindow), " Queue is: ", len(self.os.osNode.linkQueue), "/", self.os.osNode.maxQueueLength
 
         while len(self.sendWindow) < int(self.cwnd/self.mss) and len(self.sendBuffer) > 0:
             self.scheduler.addNow(self.sendBuffer[0], self.os.osNode.incomePacketEvent)
@@ -517,10 +518,10 @@ class TcpSocket:
     def updateCwnd(self, bytesRecieved):
         if (self.cwnd < self.ssthresh):
             self.cwnd += bytesRecieved
-            print self.cwnd, " ", self.cwnd / self.mss
+            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd expo " + str(self.os.osNode.ip) + " " + str(self.cwnd) + " " + str(self.cwnd / self.mss) + "\n")
         else:
             self.cwnd += self.mss * bytesRecieved / self.cwnd
-            print self.cwnd, " ", int(self.cwnd / self.mss)
+            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd lin " + str(self.os.osNode.ip) + " " + str(self.cwnd) + " " + str(self.cwnd / self.mss) + "\n")
 
 
     ####################################################################
@@ -530,7 +531,6 @@ class TcpSocket:
     def handleDataEvent(self, t, packet):
         if not ((packet.sqNum, packet) in self.recieveBuffer) and not (packet.sqNum < self.rmtSequenceNumber):
             heappush(self.recieveBuffer, (packet.sqNum, packet))
-            self.updateCwnd(packet.length)
 
         self.passUpInOrderData(t)
         self.sendAck(t)
