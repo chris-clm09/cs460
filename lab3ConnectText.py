@@ -64,7 +64,6 @@ if __name__ == '__main__':
     n2 = Node('125.225.53.2', s, 10)
     
     l = Link(s, 1000, 1000, 200000000)
-    l.setLossRate(.5)
     l.setDstNode(n2)
     l.setSrcNode(n)
     n.addLink(l)
@@ -77,14 +76,14 @@ if __name__ == '__main__':
     os = OS(s, n)
     n.linkOs(os)
     #Client
-    socket = os.socket(AF_INET, SOCK_STREAM, 15)
+    socket = os.socket(AF_INET, SOCK_STREAM)
     socket.registerApp(client())
     socket.connect('125.225.53.2', 80)
     
     os2 = OS(s, n2)
     n2.linkOs(os2)
     #Server
-    socket2 = os2.socket(AF_INET, SOCK_STREAM, 15)
+    socket2 = os2.socket(AF_INET, SOCK_STREAM)
     socket2.registerApp(server())
     socket2.bind('125.225.53.2', 80)
     

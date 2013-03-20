@@ -19,10 +19,10 @@ class TcpSocket:
     sendBuffer    = []
     sendWindow    = {}
     
-    cwnd     = 0.0
+    cwnd     = 1500.0
     mss      = 1500
     ithresh  = 96000 #Bytes
-    ssthresh = ithresh
+    ssthresh = 96000
     attempt  = 0
     
     mySequenceNumber  = 0
@@ -44,10 +44,9 @@ class TcpSocket:
     ####################################################################
     # __init__
     ####################################################################
-    def __init__(self, os, s, cwnd):
+    def __init__(self, os, s):
         self.os        = os
         self.scheduler = s
-        self.cwnd   = float (cwnd)
     
     ####################################################################
     # Set Timer
@@ -365,9 +364,11 @@ class TcpSocket:
             self.scheduler.addNow(packet, self.os.osNode.incomePacketEvent)
             self.setTimeOut(packet, self.packetTimeoutEvent)
 
+            print "PacketTimeOut", self.os.osNode.ip
+
             #TCP Recovery
-            self.ssthresh = max(int(self.cwnd/2), self.mss)
-            self.cwnd = self.mss
+            self.ssthresh = max(self.cwnd/2, self.mss)
+            self.cwnd     = self.mss
 
         elif len(self.sendWindow) > 0:
             #No Timeout Yet
@@ -382,7 +383,9 @@ class TcpSocket:
     # the packets across the network, and add them to the sendWindow.
     ####################################################################
     def sendDataHandler(self, t, junk):
-        while len(self.sendWindow) < int(self.cwnd) and len(self.sendBuffer) > 0:
+        print self.os.osNode.ip, ":willSend: ", int(self.cwnd/self.mss) - len(self.sendWindow), " Queue is: ", len(self.os.osNode.linkQueue), "/", self.os.osNode.maxQueueLength
+
+        while len(self.sendWindow) < int(self.cwnd/self.mss) and len(self.sendBuffer) > 0:
             self.scheduler.addNow(self.sendBuffer[0], self.os.osNode.incomePacketEvent)
             
             if not self.timer:
@@ -514,8 +517,11 @@ class TcpSocket:
     def updateCwnd(self, bytesRecieved):
         if (self.cwnd < self.ssthresh):
             self.cwnd += bytesRecieved
+            print self.cwnd, " ", self.cwnd / self.mss
         else:
             self.cwnd += self.mss * bytesRecieved / self.cwnd
+            print self.cwnd, " ", int(self.cwnd / self.mss)
+
 
     ####################################################################
     # HandleDataEvent

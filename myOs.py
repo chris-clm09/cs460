@@ -40,12 +40,12 @@ class OS:
     # standard domain and type arguments, and should expect protocol
     # to be zero.
     ####################################################################
-    def socket(self, ipType, protocal, windowSize=15):
+    def socket(self, ipType, protocal):
         s = None
         if protocal == SOCK_DGRAM:
             s = Mysocket(ipType, protocal, self, self.scheduler)
         elif protocal == SOCK_STREAM:
-            s = TcpSocket(self, self.scheduler, windowSize)
+            s = TcpSocket(self, self.scheduler)
         else:
             raise Exception("Error in OS::Socket: Did you even read the spec? What protocal did you even pass in?")
         
@@ -62,7 +62,7 @@ class OS:
             if  k in self.binds:#Already Connected
                 self.binds[k].accept(t, packet)
             else:#Create New Connection
-                s = self.socket(AF_INET, SOCK_STREAM, 15)
+                s = self.socket(AF_INET, SOCK_STREAM)
                 s.osbind(packet.desAddress)
                 s.registerApp(self.binds[packet.desAddress].app)
                 self.binds[k] = s
@@ -79,4 +79,5 @@ class OS:
             packet.scheduler.log.write(str(self.osNode.ip)+ " dropped: "+ str(packet.data))
             packet.scheduler.log.write("Packet wanted to get to: "+ str(packet.desAddress))
             packet.scheduler.log.write("My binds are\n"+ str(self.binds))
-            raise Exception("Attempt to access a removed socket!")
+            #raise Exception("Attempt to access a removed socket!")
+            return

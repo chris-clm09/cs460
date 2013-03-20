@@ -75,6 +75,7 @@ class Node:
         else:
             self.scheduler.log.write(str(t) + " PacketDropped " +
                   str(packet.sqNum) + " " + str(self.ip) + "\n")
+            #print "packetDropped on ", self.ip, " sq: ", packet.sqNum
 
     
 ####################################################################
