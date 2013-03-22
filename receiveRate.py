@@ -92,9 +92,6 @@ def calWindowRates(binnedTimes):
 		ansBytes.append(sum / 1500.0)
 		i += 1
 
-
-	print ansBytes
-
 	return (ansTime, ansBytes)
 
 ########################################################################
@@ -114,8 +111,10 @@ if __name__ == '__main__':
 
 	#Plot Stuff
 	plotReceiveRate(rates[0], rates[1])
+	ylim(0, 11)
+	xlim(-1, 10)
 	xlabel('Time in Seconds')
 	ylabel('Packets/Second')
 	# legend()
-	savefig('ReceiveRate')
+	savefig('ReceiveRateReport')
 

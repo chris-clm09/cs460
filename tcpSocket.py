@@ -65,11 +65,13 @@ class TcpSocket:
     # timer with the new event.  It will not remove any currently
     # stored timer event from the scheduler.
     ####################################################################
-    def setTimeOut(self, thing, handler):
-        self.timer = self.scheduler.add(
-            self.scheduler.current_time() + self.timeoutInSec,
-            thing,
-            handler)
+    def setTimeOut(self, thing, handler, timeout=-1):
+        newTimer = self.scheduler.add(
+                                        self.scheduler.current_time() + 
+                                        (self.timeoutInSec if (timeout == -1) else timeout),
+                                        thing,
+                                        handler)
+        self.setTimer(newTimer)
         return
     
     ####################################################################
@@ -366,10 +368,16 @@ class TcpSocket:
             self.scheduler.addNow(packet, self.os.osNode.incomePacketEvent)
             self.setTimeOut(packet, self.packetTimeoutEvent)
 
-            #TCP Recovery
-            self.ssthresh = max(self.cwnd/2, self.mss)
-            self.cwnd     = self.mss
-            self.scheduler.log.write(str(t) + " cwnd timeout " + str(self.os.osNode.ip) + " " + str(self.cwnd) + " " + str(self.cwnd / self.mss) + "\n")            
+            if (self.cwnd > self.mss):
+                #TCP Recovery
+                print "@ ", t," Packet Timeout Sq#: ", packet.sqNum
+                print "cwnd before: ", self.cwnd
+                self.ssthresh = max(self.cwnd/2.0, self.mss)
+                self.cwnd     = self.mss
+                print "after ssthresh: ", self.ssthresh
+                self.os.osNode.printQueueInfo()
+                print ""
+                self.scheduler.log.write(str(t) + " cwnd timeout " + str(self.os.osNode.ip) + " " + str(self.cwnd / self.mss) + "\n")            
 
         elif len(self.sendWindow) > 0:
             #No Timeout Yet

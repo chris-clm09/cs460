@@ -53,6 +53,9 @@ class Node:
     def addLink(self, link):
         self.link = link
 
+    def printQueueInfo(self):
+        print "Queue: ", len(self.linkQueue), "/", self.maxQueueLength
+
     def incomePacketEvent(self, t, packet):
         self.scheduler.log.write(str(t) + " PacketRecieved " + str(packet.sqNum) + " " + str(self.ip) + "\n" )
         
