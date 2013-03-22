@@ -518,10 +518,10 @@ class TcpSocket:
     def updateCwnd(self, bytesRecieved):
         if (self.cwnd < self.ssthresh):
             self.cwnd += bytesRecieved
-            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd expo " + str(self.os.osNode.ip) + " " + str(self.cwnd) + " " + str(self.cwnd / self.mss) + "\n")
+            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd expo " + str(self.os.osNode.ip) + " " + str(self.cwnd / self.mss) + "\n")
         else:
             self.cwnd += self.mss * bytesRecieved / self.cwnd
-            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd lin " + str(self.os.osNode.ip) + " " + str(self.cwnd) + " " + str(self.cwnd / self.mss) + "\n")
+            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd lin " + str(self.os.osNode.ip) + " " + str(self.cwnd / self.mss) + "\n")
 
 
     ####################################################################

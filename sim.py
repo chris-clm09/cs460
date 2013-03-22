@@ -58,7 +58,10 @@ class Node:
         
         if (packet.desAddress[0] == self.ip):
             #it's Mine pass it to my OS
-            self.scheduler.log.write(str(t) + " PacketDone " + str(packet.sqNum) +" "+ str(packet.totalTime()) + "\n")
+            self.scheduler.log.write(str(t) + " PacketDone " +  str(packet.sqNum)  +" "+ 
+                                                                str(packet.length) +" "+
+                                                                str(self.ip)       +" "+ 
+                                                                str(packet.totalTime()) + "\n")
             self.scheduler.add(t+.01, packet, self.os.incomeSocketEvent)
         else:
             #Rout it!
