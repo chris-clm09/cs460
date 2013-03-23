@@ -10,7 +10,7 @@ class Plotter:
         """ Initialize plotter with a file name. """
         self.file = file
         self.data = []
-        self.min_time = None
+        self.min_time = 0
         self.max_time = None
 
     def parse(self):
@@ -67,10 +67,13 @@ class Plotter:
         
         scatter(x,y,marker='s',s=3)
         scatter(ackX,ackY,marker='s',s=0.2)
-        scatter(dropX, dropY, marker='X')
+        scatter(dropX, dropY, marker='x')
         xlabel('Time (seconds)')
         ylabel('Sequence Number Mod 1500')
         xlim([self.min_time,self.max_time])
+        ylim([-10000, 80000])
+        print self.min_time, self.max_time
+
         savefig('sequence.png')
 
 def parse_options():

@@ -1,0 +1,13 @@
+echo "----Building Reports----"
+
+echo "Plot Sequence"
+python plot-sequence.py -f log.txt
+
+echo "Plot Queue"
+python plot-queue.py -f log.txt
+
+echo "Plot Rate"
+python plot-rate.py -f log.txt
+
+echo "Plot Cwnd"
+python cwndReport.py

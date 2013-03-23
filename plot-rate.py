@@ -60,12 +60,13 @@ class Plotter:
                 x.append(i)
                 y.append(rate)
                 if not max or rate > max:
-                    max = int(rate) + 1
+                    max = int(rate) + .5
             i += 0.1
         
         plot(x,y)
         xlabel('Time (seconds)')
         ylabel('Rate (Mbps)')
+        print "max Y: ", max
         ylim([0,max])
         savefig('rate.png')
 

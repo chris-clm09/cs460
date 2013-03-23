@@ -26,7 +26,7 @@ class Plotter:
                 # t,size = line.split()
                 if (event != 'Queue' or ip != '125.225.53.1'):
                     continue
-                print t, " ", eType, " ", size 
+                # print t, " ", eType, " ", size 
             except:
                 continue
             t = float(t)
@@ -49,7 +49,7 @@ class Plotter:
         dropX = []
         dropY = []
         i = 0
-        max_queue = 102
+        max_queue = 100
         max = None
         for (t,size) in self.data:
             if size == 'x':

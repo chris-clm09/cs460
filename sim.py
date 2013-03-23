@@ -41,9 +41,11 @@ class Node:
     def __init__(self, ip, scheduler, maxQueueLength):
         self.ip             = ip
         self.scheduler      = scheduler
+    
         self.maxQueueLength = maxQueueLength
         self.linkQueue      = []
         self.link           = None
+    
         self.sch            = False
         self.os             = None
     
@@ -96,6 +98,7 @@ class Link:
         self.bandwidth = bandwidth
         self.distance  = distance
         self.speed     = speed
+        
         self.srcNode   = None
         self.dstNode   = None
         self.lossRate  = None
