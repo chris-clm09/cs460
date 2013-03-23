@@ -60,15 +60,15 @@ if __name__ == '__main__':
     
     
     # Set up Network
-    n  = Node('125.225.53.1', s, 100)
-    n2 = Node('125.225.53.2', s, 100)
+    n  = Node('125.225.53.1', s)
+    n2 = Node('125.225.53.2', s)
     
-    l = Link(s, 100000/8.0, 1000, 100000)
+    l = Link(s, 100000/8.0, 1000, 100000, 100)
     l.setDstNode(n2)
     l.setSrcNode(n)
     n.addLink(l)
     
-    l2 = Link(s, 100000/8.0, 1000, 100000)
+    l2 = Link(s, 100000/8.0, 1000, 100000, 100)
     l2.setDstNode(n)
     l2.setSrcNode(n2)
     n2.addLink(l2)

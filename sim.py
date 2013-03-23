@@ -38,14 +38,10 @@ class Scheduler:
 # This class will represent a node in a simulated network.
 ####################################################################
 class Node:
-    def __init__(self, ip, scheduler, maxQueueLength):
+    def __init__(self, ip, scheduler):
         self.ip             = ip
         self.scheduler      = scheduler
-    
-        self.maxQueueLength = maxQueueLength
-        self.linkQueue      = []
         self.link           = None
-    
         self.sch            = False
         self.os             = None
     
@@ -54,9 +50,6 @@ class Node:
 
     def addLink(self, link):
         self.link = link
-
-    def printQueueInfo(self):
-        print "Queue: ", len(self.linkQueue), "/", self.maxQueueLength
 
     def incomePacketEvent(self, t, packet):
         self.scheduler.log.write(str(t) + " PacketRecieved " + str(packet.sqNum) + " " + str(self.ip) + "\n" )
@@ -70,39 +63,29 @@ class Node:
             self.scheduler.add(t+.01, packet, self.os.incomeSocketEvent)
         else:
             #Rout it!
-            self.enquePacket(t, packet)
-        
-    
-    def enquePacket(self, t, packet):
-        if len(self.linkQueue) < self.maxQueueLength:
-            if (len(self.linkQueue) == 0):
-                self.scheduler.add(t, packet, self.link.transmittionDelayHandler)
-            
-            packet.queueD = t
-            self.linkQueue.append(packet)
-            self.scheduler.log.write(str(t) + " Queue Enque " + 
-                str(len(self.linkQueue)) + " / " + str(self.maxQueueLength) + " " + 
-                str(self.ip) + "\n")
-
-        else:
-            self.scheduler.log.write(str(t) + " Queue Dropped " + 
-                "x | " + str(packet.sqNum) + " " + str(self.ip) + "\n")
+            self.link.enquePacket(t, packet)
 
     
 ####################################################################
 # This class will represent a link abstraction in a network.
 ####################################################################
 class Link:
-    def __init__(self, scheduler, bandwidth, distance, speed):
+    def __init__(self, scheduler, bandwidth, distance, speed, maxQueueLength):
         self.scheduler = scheduler
         self.bandwidth = bandwidth
         self.distance  = distance
         self.speed     = speed
-        
+ 
+        self.maxQueueLength = maxQueueLength
+        self.linkQueue      = []
+
         self.srcNode   = None
         self.dstNode   = None
         self.lossRate  = None
-    
+ 
+    def printQueueInfo(self):
+        print "Queue: ", len(self.linkQueue), "/", self.maxQueueLength
+
     def setLossRate(self, rate):
         if rate >= 0  and rate <= 1:
             self.lossRate = rate
@@ -112,9 +95,25 @@ class Link:
     
     def setDstNode(self, link):
         self.dstNode = link
-        
+    
+    def enquePacket(self, t, packet):
+        if len(self.linkQueue) < self.maxQueueLength:
+            if (len(self.linkQueue) == 0):
+                self.scheduler.add(t, packet, self.transmittionDelayHandler)
+            
+            packet.queueD = t
+            self.linkQueue.append(packet)
+            self.scheduler.log.write(str(t) + " Queue Enque " + 
+                str(len(self.linkQueue)) + " / " + str(self.maxQueueLength) + " " + 
+                str(self.srcNode.ip) + "\n")
+
+        else:
+            self.scheduler.log.write(str(t) + " Queue Dropped " + 
+                "x | " + str(packet.sqNum) + " " + str(self.srcNode.ip) + "\n")
+
+
     def transmittionDelayHandler(self, t, packet):
-        if not(packet is self.srcNode.linkQueue[0]):
+        if not(packet is self.linkQueue[0]):
             print "HOOOLLLLY CRAP"
             
         packet.queueD = t - packet.queueD
@@ -126,23 +125,26 @@ class Link:
         
     
     def propigationDelayhandler(self, t, packet):
-        if not(packet is self.srcNode.linkQueue[0]):
+        if not(packet is self.linkQueue[0]):
             print "HOOOLLLLY CRAP!! ~PropDelayHandler: Not right!"
 
-        self.srcNode.linkQueue.pop(0)
+        self.linkQueue.pop(0)
         self.scheduler.log.write(str(t) + " Queue DeQueue " + 
-            str(len(self.srcNode.linkQueue)) + " / " + str(self.srcNode.maxQueueLength) + " " +
-            str(self.srcNode.ip) + "\n")
+                                 str(len(self.linkQueue)) + " / " + 
+                                 str(self.maxQueueLength) + " " +
+                                 str(self.srcNode.ip) + "\n")
         
 
-        if len(self.srcNode.linkQueue) > 0:
+        if len(self.linkQueue) > 0:
             self.scheduler.add(t+.0000001,
-                               self.srcNode.linkQueue[0],
+                               self.linkQueue[0],
                                self.transmittionDelayHandler)
         
         #Determine if Packet needs to be Dropped
         if self.loosePacket():
-            self.scheduler.log.write(str(t) + " LossPacket " + str(packet.sqNum) + " " + packet.strType()+ "\n")
+            self.scheduler.log.write(str(t) + " LossPacket " + 
+                                     str(packet.sqNum) + " " + 
+                                     packet.strType()+ "\n")
             return            
         
         delay = self.distance / float(self.speed)
