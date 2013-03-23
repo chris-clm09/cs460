@@ -78,12 +78,13 @@ class Node:
             
             packet.queueD = t
             self.linkQueue.append(packet)
-            self.scheduler.log.write(str(t) + " PacketEnque " + str(self.ip) + 
-                " " + str(len(self.linkQueue)) + " / " + str(self.maxQueueLength) + "\n")
+            self.scheduler.log.write(str(t) + " Queue Enque " + 
+                str(len(self.linkQueue)) + " / " + str(self.maxQueueLength) + " " + 
+                str(self.ip) + "\n")
 
         else:
-            self.scheduler.log.write(str(t) + " PacketDropped " +
-                  str(packet.sqNum) + " " + str(self.ip) + "\n")
+            self.scheduler.log.write(str(t) + " Queue Dropped " + 
+                "x | " + str(packet.sqNum) + " " + str(self.ip) + "\n")
 
     
 ####################################################################
@@ -126,8 +127,9 @@ class Link:
             print "HOOOLLLLY CRAP!! ~PropDelayHandler: Not right!"
 
         self.srcNode.linkQueue.pop(0)
-        self.scheduler.log.write(str(t) + " PacketDeque " + str(self.srcNode.ip) + 
-            " " + str(len(self.srcNode.linkQueue)) + " / " + str(self.srcNode.maxQueueLength) + "\n")
+        self.scheduler.log.write(str(t) + " Queue DeQueue " + 
+            str(len(self.srcNode.linkQueue)) + " / " + str(self.srcNode.maxQueueLength) + " " +
+            str(self.srcNode.ip) + "\n")
         
 
         if len(self.srcNode.linkQueue) > 0:

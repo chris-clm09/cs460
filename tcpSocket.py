@@ -370,13 +370,13 @@ class TcpSocket:
 
             if (self.cwnd > self.mss):
                 #TCP Recovery
-                print "@ ", t," Packet Timeout Sq#: ", packet.sqNum
-                print "cwnd before: ", self.cwnd
+                # print "@ ", t," Packet Timeout Sq#: ", packet.sqNum
+                # print "cwnd before: ", self.cwnd
                 self.ssthresh = max(self.cwnd/2.0, self.mss)
                 self.cwnd     = self.mss
-                print "after ssthresh: ", self.ssthresh
-                self.os.osNode.printQueueInfo()
-                print ""
+                # print "after ssthresh: ", self.ssthresh
+                # self.os.osNode.printQueueInfo()
+                # print ""
                 self.scheduler.log.write(str(t) + " cwnd timeout " + str(self.os.osNode.ip) + " " + str(self.cwnd / self.mss) + "\n")            
 
         elif len(self.sendWindow) > 0:
