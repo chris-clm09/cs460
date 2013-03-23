@@ -66,7 +66,7 @@ class Plotter:
         ylabel('Queue Size (packets)')
         xlim([self.min_time,self.max_time])
         ylim([0,max_queue+2])
-        savefig('queue.png')
+        savefig('reports/queue.png')
 
 def parse_options():
         # parse options

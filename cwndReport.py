@@ -58,5 +58,5 @@ if __name__ == '__main__':
 	xlabel('Time in Seconds')
 	ylabel('Congestion Window Size in Packets')
 	# legend()
-	savefig('cwndReport')
+	savefig('reports/cwndReport')
 

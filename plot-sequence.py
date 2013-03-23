@@ -74,7 +74,7 @@ class Plotter:
         ylim([-10000, 80000])
         print self.min_time, self.max_time
 
-        savefig('sequence.png')
+        savefig('reports/sequence.png')
 
 def parse_options():
         # parse options

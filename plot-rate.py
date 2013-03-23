@@ -68,7 +68,7 @@ class Plotter:
         ylabel('Rate (Mbps)')
         print "max Y: ", max
         ylim([0,max])
-        savefig('rate.png')
+        savefig('reports/rate.png')
 
 def parse_options():
         # parse options
