@@ -42,15 +42,15 @@ class Node:
     def __init__(self, ip, scheduler):
         self.ip             = ip
         self.scheduler      = scheduler
-        self.link           = None
+        self.links          = {}
         self.sch            = False
         self.os             = None
     
     def linkOs(self, os):
         self.os = os
 
-    def addLink(self, link):
-        self.link = link
+    def addLink(self, link, ip):
+        self.links[ip] = link
 
     def incomePacketEvent(self, t, packet):
         self.scheduler.log.write(str(t) + " PacketRecieved " + str(packet.sqNum) + " " + str(self.ip) + "\n" )
@@ -64,7 +64,12 @@ class Node:
             self.scheduler.add(t+.01, packet, self.os.incomeSocketEvent)
         else:
             #Rout it!
-            self.link.enquePacket(t, packet)
+            if packet.desAddress[0] in self.links:
+                self.links[packet.desAddress[0]].enquePacket(t, packet)
+            else:
+                for key in self.links:
+                    if key != packet.srcAddress[0]:
+                        self.links[key].enquePacket(t, packet) 
 
             
 #---------------------------

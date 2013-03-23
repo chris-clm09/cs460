@@ -66,12 +66,12 @@ if __name__ == '__main__':
     l = Link(s, 100000/8.0, 1000, 100000, 100)
     l.setDstNode(n2)
     l.setSrcNode(n)
-    n.addLink(l)
+    n.addLink(l, n2.ip)
     
     l2 = Link(s, 100000/8.0, 1000, 100000, 100)
     l2.setDstNode(n)
     l2.setSrcNode(n2)
-    n2.addLink(l2)
+    n2.addLink(l2, n.ip)
     
     os = OS(s, n)
     n.linkOs(os)
