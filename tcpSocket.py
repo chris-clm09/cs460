@@ -332,7 +332,7 @@ class TcpSocket:
     def ackPacket(self, t, packet):
         ack = packet.ackNum
         if not (ack == None):
-            self.scheduler.log.write(str(t) + " Recieved_Act " + str(ack) + " " + str(self.os.osNode.ip + "\n"))
+            self.scheduler.log.write(str(t) + " Ack Received " + " | | " + str(ack) + " " + str(self.os.osNode.ip + "\n"))
             
             for key in self.sendWindow.keys():
                 if key < ack:
@@ -392,11 +392,10 @@ class TcpSocket:
     # the packets across the network, and add them to the sendWindow.
     ####################################################################
     def sendDataHandler(self, t, junk):
-        #print self.os.osNode.ip, ":willSend: ", int(self.cwnd/self.mss) - len(self.sendWindow), " Queue is: ", len(self.os.osNode.linkQueue), "/", self.os.osNode.maxQueueLength
-
         while len(self.sendWindow) < int(self.cwnd/self.mss) and len(self.sendBuffer) > 0:
             self.scheduler.addNow(self.sendBuffer[0], self.os.osNode.incomePacketEvent)
-            
+            self.scheduler.log.write(str(t) + " Send Packet | | " + str(self.sendBuffer[0].sqNum) + " " + str(self.os.osNode.ip) +"\n")
+
             if not self.timer:
                 self.setTimeOut(self.sendBuffer[0], self.packetTimeoutEvent)
                                 
