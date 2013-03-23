@@ -2,17 +2,31 @@ import sched
 import random
 from Link import *
 
+class aLog:
+    def __init__(self, afile):
+        self.mylog = afile
+        self.log   = True
+
+    def write(self, str):
+        if self.log:
+            self.mylog.write(str)
+
+    def off(self):
+        self.log = False
+
 ####################################################################
 #
 ####################################################################
 class Scheduler:
     current = 0
-    log = open('./log.txt', 'w')
     
+    log = aLog(open('./log.txt', 'w'))
+    # log.off()
+
     def __init__(self):
         self.current = 0
         self.scheduler = sched.scheduler(Scheduler.current_time,Scheduler.advance_time)
-    
+
     @staticmethod
     def current_time():
         return Scheduler.current
@@ -53,7 +67,8 @@ class Node:
         self.links[ip] = link
 
     def incomePacketEvent(self, t, packet):
-        self.scheduler.log.write(str(t) + " PacketRecieved " + str(packet.sqNum) + " " + str(self.ip) + "\n" )
+        self.scheduler.log.write(str(t) + " PacketRecieved " + str(packet.sqNum) + " " + 
+                                                               str(self.ip) + "\n" )
         
         if (packet.desAddress[0] == self.ip):
             #it's Mine pass it to my OS
