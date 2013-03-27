@@ -26,7 +26,7 @@ class Plotter:
                 # t,size = line.split()
                 if (event != 'Queue' or ip != '125.225.53.1'):
                     continue
-                # print t, " ", eType, " ", size 
+                # print t, " ", size, " ",line
             except:
                 continue
             t = float(t)
