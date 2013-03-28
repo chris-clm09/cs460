@@ -20,7 +20,7 @@ def parseFile():
 		try:
 			time, event, event_type, ip, cwnd = line.split()
 			if (event == "cwnd" and ip == "125.225.53.1"):
-				print line
+				# print line
 				data[0].append(float(time))
 				data[1].append(float(cwnd))
 		except:

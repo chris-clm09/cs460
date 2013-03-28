@@ -33,7 +33,7 @@ class Plotter:
             try:
                 size = int(size)
             except:
-                print size
+                # print size
                 pass
             self.data.append((t,size))
             if not self.min_time or t < self.min_time:
@@ -55,7 +55,7 @@ class Plotter:
             if size == 'x':
                 dropX.append(t)
                 dropY.append(max_queue+1)
-                print "Dropped Found"
+                # print "Dropped Found"
             else:
                 x.append(t)
                 y.append(size)
