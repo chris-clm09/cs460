@@ -49,7 +49,7 @@ class Plotter:
         dropX = []
         dropY = []
         i = 0
-        max_queue = 100
+        max_queue = 10
         max = None
         for (t,size) in self.data:
             if size == 'x':

@@ -21,8 +21,8 @@ class TcpSocket:
     
     cwnd     = 1500.0
     mss      = 1500
-    ithresh  = 96000 #Bytes
-    ssthresh = 96000
+    ithresh  = 1500 * 10 #Bytes
+    ssthresh = 1500 * 10
     attempt  = 0
     
     mySequenceNumber  = 0
@@ -33,7 +33,7 @@ class TcpSocket:
     serverClose       = False
     
     timer        = None
-    timeoutInSec = 3
+    timeoutInSec = 1
     
     ####################################################################
     # This function will register an application with the socket.
@@ -334,12 +334,16 @@ class TcpSocket:
         if not (ack == None):
             self.scheduler.log.write(str(t) + " Ack Received " + " | | " + str(ack) + " " + str(self.os.osNode.ip + "\n"))
             
+            max = 0
             for key in self.sendWindow.keys():
                 if key < ack:
-                    self.updateCwnd(self.sendWindow[key].length)
+                    if (self.sendWindow[key].length > max):
+                        max = self.sendWindow[key].length
                     del self.sendWindow[key]
 
-            
+            if max:
+                self.updateCwnd(max)
+                    
             self.sendDataHandler(t, None)
         
         return
@@ -366,6 +370,7 @@ class TcpSocket:
             #A timeout occured
             self.scheduler.log.write(str(t) + " PacketTimeout_on " + str(self.os.osNode.ip) + " " + str(packet.sqNum) + "\n")
             self.scheduler.addNow(packet, self.os.osNode.incomePacketEvent)
+            self.scheduler.log.write(str(t) + " Send Packet | | " + str(packet.sqNum) + " " + str(self.os.osNode.ip) +"\n")
             self.setTimeOut(packet, self.packetTimeoutEvent)
 
             if (self.cwnd > self.mss):
@@ -373,8 +378,8 @@ class TcpSocket:
                 # print "@ ", t," Packet Timeout Sq#: ", packet.sqNum
                 # print "cwnd before: ", self.cwnd
                 self.ssthresh = max(self.cwnd/2.0, self.mss)
-                self.cwnd     = self.mss
-                # print "after ssthresh: ", self.ssthresh
+                self.cwnd     = float(self.mss)
+                #print "after ssthresh: ", self.ssthresh, " cwnd: ", self.cwnd / self.mss
                 # self.os.osNode.printQueueInfo()
                 # print ""
                 self.scheduler.log.write(str(t) + " cwnd timeout " + str(self.os.osNode.ip) + " " + str(self.cwnd / self.mss) + "\n")            

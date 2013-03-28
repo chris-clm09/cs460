@@ -66,7 +66,7 @@ class Plotter:
             
         
         scatter(x,y,marker='s',s=3)
-        scatter(ackX,ackY,marker='s',s=0.2)
+        scatter(ackX,ackY,marker='s',s=0.2, color="Red")
         scatter(dropX, dropY, marker='x')
         xlabel('Time (seconds)')
         ylabel('Sequence Number Mod 1500')
