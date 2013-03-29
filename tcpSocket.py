@@ -34,6 +34,8 @@ class TcpSocket:
     
     timer        = None
     timeoutInSec = 1
+
+    doneSendingCalled = False
     
     ####################################################################
     # This function will register an application with the socket.
@@ -408,7 +410,8 @@ class TcpSocket:
             self.sendBuffer.pop(0)
         
         #Signal completion of sending file.
-        if len(self.sendWindow) == 0 and len(self.sendBuffer) == 0:
+        if len(self.sendWindow) == 0 and len(self.sendBuffer) == 0 and not self.doneSendingCalled:
+            self.doneSendingCalled = True
             self.app.doneSending(t, self)
             
         return    
@@ -581,7 +584,7 @@ class TcpSocket:
         if self.attempt > 1:
             self.scheduler.log.write(str(self.scheduler.current_time()) + " re-close " + str(self.os.osNode.ip) + "\n")
             
-        if (self.attempt > 3):
+        if (self.attempt >= 3):
             self.scheduler.log.write(str(self.scheduler.current_time()) + " reclose_cnt Exceeded Force_DONE " + str(self.os.osNode.ip) + "\n")
             self.done()
         else:
@@ -636,13 +639,13 @@ class TcpSocket:
                               self.os.osNode.incomePacketEvent)
         
         if self.isCloseing:
-            print self.os.osNode.ip, ' Im Closing'
+            print t, self.address, self.remoteAdPt, ' Im Closing'
             self.stopTimer()
             self.timer = self.scheduler.add(t + 30,
                                             None,
                                             self.done)
         elif not self.serverClose:
-            print 'finRecieve calling close.'
+            print t, self.address, self.remoteAdPt, ' finRecieve calling close.', self
             self.serverClose = True
             self.close()
             
