@@ -13,12 +13,10 @@ strFile = fileToString('junk.txt')
 class client():
     
     def ready(self, t, socket):
-        print t, " Client: ", socket.address
         socket.scheduler.log.write(str(t) + " Client Send File: " + socket.strAddress() + "\n")
         socket.send(strFile)
         
     def doneSending(self, t, socket):
-        # print t, "Client Closing: ", socket.address
         socket.scheduler.log.write(str(t) + " " + str(socket.address) + " " + str(socket.remoteAdPt) + " Client Done Sending. Initiate Close.\n")
         #socket.close()
     

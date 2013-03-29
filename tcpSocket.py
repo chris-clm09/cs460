@@ -381,15 +381,9 @@ class TcpSocket:
             self.setTimeOut(packet, self.packetTimeoutEvent)
 
             if (self.cwnd > self.mss):
-                #TCP Recovery
-                # print "@ ", t," Packet Timeout Sq#: ", packet.sqNum
-                # print "cwnd before: ", self.cwnd
                 self.ssthresh = max(self.cwnd/2.0, self.mss)
                 self.cwnd     = float(self.mss)
-                #print "after ssthresh: ", self.ssthresh, " cwnd: ", self.cwnd / self.mss
-                # self.os.osNode.printQueueInfo()
-                # print ""
-                self.scheduler.log.write(str(t) + " cwnd timeout " + str(self.os.osNode.ip) + " " + str(self.cwnd / self.mss) + "\n")            
+                self.scheduler.log.write(str(t) + " cwnd timeout " + self.strAddress() + " " + str(self.cwnd / self.mss) + "\n")            
 
         elif len(self.sendWindow) > 0:
             #No Timeout Yet
@@ -434,12 +428,8 @@ class TcpSocket:
         self.sendBuffer += segments
           
         #IF sendBuffer is empty Schedule sendDataEvent
-        print self
         if len(self.sendWindow) < 1:
-            print "Initating Send: " + self.strAddress()
             self.sendDataHandler(self.scheduler.current_time(), None)
-        else:
-            print "Failing to Send. Window has somthing in it? : ", len(self.sendWindow)
             
         return
     
@@ -542,10 +532,10 @@ class TcpSocket:
     def updateCwnd(self, bytesRecieved):
         if (self.cwnd < self.ssthresh):
             self.cwnd += bytesRecieved
-            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd expo " + str(self.os.osNode.ip) + " " + str(self.cwnd / self.mss) + "\n")
+            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd expo " + self.strAddress() + " " + str(self.cwnd / self.mss) + "\n")
         else:
             self.cwnd += self.mss * bytesRecieved / self.cwnd
-            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd lin " + str(self.os.osNode.ip) + " " + str(self.cwnd / self.mss) + "\n")
+            self.scheduler.log.write(str(self.scheduler.current_time()) + " cwnd lin " + self.strAddress() + " " + str(self.cwnd / self.mss) + "\n")
 
 
     ####################################################################
@@ -648,13 +638,11 @@ class TcpSocket:
                               self.os.osNode.incomePacketEvent)
         
         if self.isCloseing:
-            print t, self.address, self.remoteAdPt, ' Im Closing'
             self.stopTimer()
             self.timer = self.scheduler.add(t + 30,
                                             None,
                                             self.done)
         elif not self.serverClose:
-            print t, self.address, self.remoteAdPt, ' finRecieve calling close.', self
             self.serverClose = True
             self.close()
             

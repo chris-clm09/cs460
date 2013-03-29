@@ -11,13 +11,10 @@ class server():
         self.fi = None
 
     def ready(self, t, socket):
-        print t, socket.address, socket.remoteAdPt, self
-
         self.fi = open('junk'+ str(socket.remoteAdPt[0]) + 'P' + str(socket.remoteAdPt[1]) +'.txt', "wr")
         return
     
     def doneSending(self, t, socket):
-        # print t, "Closing: ", self.fi
         #self.fi.close()
         return
     
