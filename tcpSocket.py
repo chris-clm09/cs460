@@ -476,8 +476,9 @@ class TcpSocket:
     # Tiggered upon the arrival of a packet
     ####################################################################
     def recievedPacketEvent(self, t, packet):
+        self.scheduler.log.write(str(t) + " socket_recieve " + str(self.os.osNode.ip) + " " + str(self.remoteAdPt[1]) + " " + str(packet.length) + " type: " + packet.strType() + "\n")
+
         #inspect packet
-        self.scheduler.log.write(str(t) + " recieved " + str(self.os.osNode.ip) + " type: " + packet.strType() + "\n")
         #ack=======================================================
         if packet.packetType == ACK:
             if not self.connected and self.remoteAdPt and packet.ackNum == 0:

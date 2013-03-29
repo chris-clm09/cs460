@@ -3,8 +3,11 @@ echo "----Building Reports Multi Host----"
 echo "Plot Queue2"
 python plot-queue2.py -f log.txt
 
-echo "Plot Rate2"
+echo "Plot OverallRate2"
 python plot-rate2.py -f log.txt
+
+echo "Plot Flow's Rate"
+python plot-flowRate2.py -f log.txt
 
 echo "Plot Cwnd2"
 python cwndReport2.py

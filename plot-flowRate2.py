@@ -9,47 +9,60 @@ class Plotter:
     def __init__(self,file):
         """ Initialize plotter with a file name. """
         self.file = file
-        self.data = []
+        self.data = {}
         self.min_time = None
         self.max_time = None
+        self.max = None
+
+        return
 
     def parse(self):
         """ Parse the data file """
         first = None
         f = open(self.file)
+        
         for line in f.readlines():
             if line.startswith("#"):
                 continue
             try:
 
-                t, event, sequence, size, ip, totaltime = line.split()
-                if (event != "PacketDone" or ip != "125.225.53.2"):
+                t, event, ip, port, size, lable, packetType = line.split()
+                if (event != "socket_recieve" or ip != "125.225.53.2"):
                     continue
             except:
                 continue
             
-            print line
-
             t = float(t)
-            sequence = int(sequence)
             size = int(size)
-            self.data.append((t,sequence,size))
+            
+            if not (port in self.data):
+                print port
+                self.data[port] = []
+
+            self.data[port].append((t,size))
+    
             if not self.min_time or t < self.min_time:
                 self.min_time = t
             if not self.max_time or t > self.max_time:
                 self.max_time = t
 
+        return
+
     def plot(self):
+        for key in self.data.keys():
+            self.plotFlow(self.data[key], "Flow " + str(key))
+        return
+
+    def plotFlow(self, data, aLabel):
         """ Create a line graph of the rate over time. """
         clf()
         x = []
         y = []
         i = 0
-        max = None
         while i < self.max_time:
             bytes = 0
             # loop through array of data and find relevant data
-            for (t,sequence,size) in self.data:
+            for (t,size) in data:
                 if (t >= i - 1) and (t <= i):
                     bytes += size
             # compute interval
@@ -62,16 +75,22 @@ class Plotter:
                 rate = (bytes*8.0/1000000)/(right-left)
                 x.append(i)
                 y.append(rate)
-                if not max or rate > max:
-                    max = int(rate) + .5
+                if not self.max or rate > self.max:
+                    self.max = int(rate) + .5
             i += 0.1
+                
+        plot(x,y,label=aLabel)
         
-        plot(x,y)
+        return
+
+    def save(self):
         xlabel('Time (seconds)')
         ylabel('Rate (Mbps)')
-        print "max Y: ", max
-        ylim([0,max])
-        savefig('reports2/overallRate.png')
+        ylim([0,self.max])
+        legend()
+        savefig('reports2/flowsRate.png')
+        return
+
 
 def parse_options():
         # parse options
@@ -94,3 +113,4 @@ if __name__ == '__main__':
     p = Plotter(options.file)
     p.parse()
     p.plot()
+    p.save()
