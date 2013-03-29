@@ -4,6 +4,8 @@ from myOs import *
 from fileToString import fileToString
 import datetime
 
+strFile = fileToString('junk.txt')
+
 ################################################################
 # Client Application:
 # This app will send the server a file.
@@ -12,13 +14,13 @@ class client():
     
     def ready(self, t, socket):
         print t, " Client: ", socket.address
-        socket.scheduler.log.write(str(t) + " Client Send File.\n")
-        socket.send(fileToString('junk.txt'))
+        socket.scheduler.log.write(str(t) + " Client Send File: " + socket.strAddress() + "\n")
+        socket.send(strFile)
         
     def doneSending(self, t, socket):
         # print t, "Client Closing: ", socket.address
         socket.scheduler.log.write(str(t) + " " + str(socket.address) + " " + str(socket.remoteAdPt) + " Client Done Sending. Initiate Close.\n")
-        socket.close()
+        #socket.close()
     
     def receviedData(self, t, data):
         print "Client Recieved: ", data

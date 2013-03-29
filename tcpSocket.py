@@ -9,47 +9,52 @@ import random
 # TCP_Socket
 ####################################################################
 class TcpSocket:
-    scheduler    = None
-    os           = None
-    address      = None
-    remoteAdPt   = None
-    app          = None
-    
-    recieveBuffer = []
-    sendBuffer    = []
-    sendWindow    = {}
-    
-    cwnd     = 1500.0
-    mss      = 1500
-    ithresh  = 1500 * 10 #Bytes
-    ssthresh = 1500 * 10
-    attempt  = 0
-    
-    mySequenceNumber  = 0
-    rmtSequenceNumber = None
-    connected         = False
-    
-    isCloseing        = False
-    serverClose       = False
-    
-    timer        = None
-    timeoutInSec = 1
 
-    doneSendingCalled = False
-    
+    ####################################################################
+    # Constructor
+    ####################################################################
+    def __init__(self, os, s):
+        self.os        = os
+        self.scheduler = s
+        self.address      = None
+        self.remoteAdPt   = None
+        self.app          = None
+        
+        self.recieveBuffer = []
+        self.sendBuffer    = []
+        self.sendWindow    = {}
+        
+        self.cwnd     = 1500.0
+        self.mss      = 1500
+        self.ithresh  = 1500 * 10 #Bytes
+        self.ssthresh = 1500 * 10
+        self.attempt  = 0
+        
+        self.mySequenceNumber  = 0
+        self.rmtSequenceNumber = None
+        self.connected         = False
+        
+        self.isCloseing        = False
+        self.serverClose       = False
+        
+        self.timer        = None
+        self.timeoutInSec = 1
+
+        self.doneSendingCalled = False
+
+
+    ####################################################################
+    # Prints the current address and port of the socket.
+    ####################################################################
+    def strAddress(self):
+        return str(self.address[0]) + " " + str(self.address[1])
+
     ####################################################################
     # This function will register an application with the socket.
     ####################################################################
     def registerApp(self, app):
         self.app = app
         
-    ####################################################################
-    # __init__
-    ####################################################################
-    def __init__(self, os, s):
-        self.os        = os
-        self.scheduler = s
-    
     ####################################################################
     # Set Timer
     # This function will remove the old timer from the scheduler
@@ -372,7 +377,7 @@ class TcpSocket:
             #A timeout occured
             self.scheduler.log.write(str(t) + " PacketTimeout_on " + str(self.os.osNode.ip) + " " + str(packet.sqNum) + "\n")
             self.scheduler.addNow(packet, self.os.osNode.incomePacketEvent)
-            self.scheduler.log.write(str(t) + " Send Packet | | " + str(packet.sqNum) + " " + str(self.os.osNode.ip) +"\n")
+            self.scheduler.log.write(str(t) + " Send Packet | | " + str(packet.sqNum) + " " + self.strAddress() +"\n")
             self.setTimeOut(packet, self.packetTimeoutEvent)
 
             if (self.cwnd > self.mss):
@@ -401,7 +406,7 @@ class TcpSocket:
     def sendDataHandler(self, t, junk):
         while len(self.sendWindow) < int(self.cwnd/self.mss) and len(self.sendBuffer) > 0:
             self.scheduler.addNow(self.sendBuffer[0], self.os.osNode.incomePacketEvent)
-            self.scheduler.log.write(str(t) + " Send Packet | | " + str(self.sendBuffer[0].sqNum) + " " + str(self.os.osNode.ip) +"\n")
+            self.scheduler.log.write(str(t) + " Send Packet | | " + str(self.sendBuffer[0].sqNum) + " " + self.strAddress() +"\n")
 
             if not self.timer:
                 self.setTimeOut(self.sendBuffer[0], self.packetTimeoutEvent)
@@ -429,8 +434,12 @@ class TcpSocket:
         self.sendBuffer += segments
           
         #IF sendBuffer is empty Schedule sendDataEvent
+        print self
         if len(self.sendWindow) < 1:
+            print "Initating Send: " + self.strAddress()
             self.sendDataHandler(self.scheduler.current_time(), None)
+        else:
+            print "Failing to Send. Window has somthing in it? : ", len(self.sendWindow)
             
         return
     

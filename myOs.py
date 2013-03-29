@@ -7,11 +7,12 @@ from tcpSocket import *
 # time.
 ################################################################
 class server():
-    fi = None
+    def __init__(self):
+        self.fi = None
 
     def ready(self, t, socket):
         print t, socket.address, socket.remoteAdPt, self
-         
+
         self.fi = open('junk'+ str(socket.remoteAdPt[0]) + 'P' + str(socket.remoteAdPt[1]) +'.txt', "wr")
         return
     
@@ -42,18 +43,15 @@ SOCK_STREAM = 1
 # OS
 #
 ####################################################################
-class OS:
-    binds     = {}
-    sockets   = []
-    osNode    = None
-    scheduler = None
-    
+class OS:    
     ####################################################################
     # __init__
     ####################################################################
     def __init__(self, s, osNode):
-        self.osNode = osNode
+        self.osNode    = osNode
         self.scheduler = s
+        self.binds     = {}
+        self.sockets   = []
         
     ####################################################################
     # The socket() system call should create a socket file descriptor
