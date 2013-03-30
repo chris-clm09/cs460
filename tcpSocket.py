@@ -348,6 +348,9 @@ class TcpSocket:
                         max = self.sendWindow[key].length
                     del self.sendWindow[key]
 
+            while len(self.sendBuffer) > 0 and self.sendBuffer[0].sqNum < ack:
+                self.sendBuffer.pop(0)
+
             if max:
                 self.updateCwnd(max)
                     
@@ -384,6 +387,10 @@ class TcpSocket:
                 self.ssthresh = max(self.cwnd/2.0, self.mss)
                 self.cwnd     = float(self.mss)
                 self.scheduler.log.write(str(t) + " cwnd timeout " + self.strAddress() + " " + str(self.cwnd / self.mss) + "\n")            
+
+            packets = sorted(self.sendWindow.values(), key=lambda thing: thing.sqNum)
+            self.sendBuffer = packets + self.sendBuffer
+            self.sendWindow = {}
 
         elif len(self.sendWindow) > 0:
             #No Timeout Yet

@@ -30,7 +30,14 @@ class Plotter:
                     or ip != "125.225.53.1"):
                     continue
             except:
-                continue
+                try:
+                    t, event, eType, j, j1, sequence, ip, port = line.split()
+                    if ((event != "Send"  and event != "Ack" and\
+                        (event == "Queue" and eType != "Dropped"))\
+                        or ip != "125.225.53.1"):
+                        continue
+                except:
+                    continue
 
             t        = float(t)
             sequence = int(sequence)

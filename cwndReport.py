@@ -18,7 +18,7 @@ def parseFile():
 
 	for line in f.readlines():
 		try:
-			time, event, event_type, ip, cwnd = line.split()
+			time, event, event_type, ip, port, cwnd = line.split()
 			if (event == "cwnd" and ip == "125.225.53.1"):
 				# print line
 				data[0].append(float(time))
