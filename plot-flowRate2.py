@@ -32,11 +32,10 @@ class Plotter:
             except:
                 continue
             
-            t = float(t)
+            t    = float(t)
             size = int(size)
             
             if not (port in self.data):
-                print port
                 self.data[port] = []
 
             self.data[port].append((t,size))
@@ -55,7 +54,6 @@ class Plotter:
 
     def plotFlow(self, data, aLabel):
         """ Create a line graph of the rate over time. """
-        clf()
         x = []
         y = []
         i = 0
@@ -75,7 +73,7 @@ class Plotter:
                 rate = (bytes*8.0/1000000)/(right-left)
                 x.append(i)
                 y.append(rate)
-                if not self.max or rate > self.max:
+                if (not self.max) or (rate > self.max):
                     self.max = int(rate) + .5
             i += 0.1
                 
@@ -86,7 +84,7 @@ class Plotter:
     def save(self):
         xlabel('Time (seconds)')
         ylabel('Rate (Mbps)')
-        ylim([0,self.max])
+        ylim([0,.9])
         legend()
         savefig('reports2/flowsRate.png')
         return
@@ -110,6 +108,7 @@ if __name__ == '__main__':
     if options.file == None:
         print "plot.py -f file"
         sys.exit()
+    clf()
     p = Plotter(options.file)
     p.parse()
     p.plot()

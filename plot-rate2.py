@@ -28,8 +28,6 @@ class Plotter:
             except:
                 continue
             
-            print line
-
             t = float(t)
             sequence = int(sequence)
             size = int(size)
