@@ -67,7 +67,7 @@ class Plotter:
         plot(x,y)
         xlabel('Time (seconds)')
         ylabel('Rate (Mbps)')
-        ylim([0,max])
+        ylim([0,1.1])
         savefig('reports2/overallRate.png')
 
 def parse_options():

@@ -11,10 +11,12 @@ strFile = fileToString('junk.txt')
 # This app will send the server a file.
 ################################################################
 class client():
-    
+    def __init__(self, wait=None):
+        self.startTime = wait
+
     def ready(self, t, socket):
         socket.scheduler.log.write(str(t) + " Client Send File: " + socket.strAddress() + "\n")
-        socket.send(strFile)
+        socket.send(strFile, self.startTime)
         
     def doneSending(self, t, socket):
         socket.scheduler.log.write(str(t) + " " + str(socket.address) + " " + str(socket.remoteAdPt) + " Client Done Sending. Initiate Close.\n")
@@ -48,12 +50,29 @@ if __name__ == '__main__':
     os = OS(s, n)
     n.linkOs(os)
     #Client
+    #0
     socket = os.socket(AF_INET, SOCK_STREAM)
     socket.registerApp(client())
     socket.connect('125.225.53.2', 80)
 
+    #1
     socket = os.socket(AF_INET, SOCK_STREAM)
-    socket.registerApp(client())
+    socket.registerApp(client(.1))
+    socket.connect('125.225.53.2', 80)
+
+    #2
+    socket = os.socket(AF_INET, SOCK_STREAM)
+    socket.registerApp(client(.2))
+    socket.connect('125.225.53.2', 80)
+
+    #3
+    socket = os.socket(AF_INET, SOCK_STREAM)
+    socket.registerApp(client(.3))
+    socket.connect('125.225.53.2', 80)
+
+    #4
+    socket = os.socket(AF_INET, SOCK_STREAM)
+    socket.registerApp(client(.4))
     socket.connect('125.225.53.2', 80)
 
     

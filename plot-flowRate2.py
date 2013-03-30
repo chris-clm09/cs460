@@ -84,7 +84,7 @@ class Plotter:
     def save(self):
         xlabel('Time (seconds)')
         ylabel('Rate (Mbps)')
-        ylim([0,.9])
+        ylim([0,1.1])
         legend()
         savefig('reports2/flowsRate.png')
         return
