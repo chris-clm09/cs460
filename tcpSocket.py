@@ -420,7 +420,7 @@ class TcpSocket:
     # writes data to the socket's send buffer. You may assume the send
     # buffer is infinite.
     ####################################################################
-    def send(self, data):
+    def send(self, data, when=None):
         #Break Up data into segments
         segments = self.segmentizeData(data)
         
@@ -429,7 +429,10 @@ class TcpSocket:
           
         #IF sendBuffer is empty Schedule sendDataEvent
         if len(self.sendWindow) < 1:
-            self.sendDataHandler(self.scheduler.current_time(), None)
+            if not when:
+                self.sendDataHandler(self.scheduler.current_time(), None)
+            else:
+                self.scheduler.add(when, None, self.sendDataHandler)
             
         return
     

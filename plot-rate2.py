@@ -67,7 +67,6 @@ class Plotter:
         plot(x,y)
         xlabel('Time (seconds)')
         ylabel('Rate (Mbps)')
-        print "max Y: ", max
         ylim([0,max])
         savefig('reports2/overallRate.png')
 
